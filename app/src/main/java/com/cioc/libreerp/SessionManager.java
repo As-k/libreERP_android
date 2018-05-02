@@ -18,8 +18,8 @@ public class SessionManager {
 
     public SessionManager(Context context) {
         this.context = context;
-        sp = context.getSharedPreferences("registered_status", context.MODE_PRIVATE);
-        spe = sp.edit();
+        sp = context.getSharedPreferences("registered_status", Context.MODE_PRIVATE);
+
     }
 
     public String getCsrfId() {
@@ -27,8 +27,9 @@ public class SessionManager {
     }
 
     public void setCsrfId(String csrf) {
+        spe = sp.edit();
         spe.putString(csrfId, csrf);
-        spe.commit();
+        spe.apply();
     }
 
     public String getSessionId() {
@@ -36,8 +37,9 @@ public class SessionManager {
     }
 
     public void setSessionId(String session) {
+        spe = sp.edit();
         spe.putString(sessionId, session);
-        spe.commit();
+        spe.apply();
     }
 
     public boolean getStatus() {
@@ -50,6 +52,7 @@ public class SessionManager {
     }
 
     public void clearAll(){
+        spe = sp.edit();
         spe.clear();
         spe.apply();
     }
