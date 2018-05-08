@@ -43,10 +43,6 @@ import io.crossbar.autobahn.wamp.types.SessionDetails;
 import io.crossbar.autobahn.wamp.types.Subscription;
 
 
-
-
-//import static com.cioc.libreerp.Backend.getHTTPClient;
-
 public class MainActivity extends AppCompatActivity {
 
     TextView userName, emailId, mobileNo;
@@ -98,8 +94,7 @@ public class MainActivity extends AppCompatActivity {
                     userName.setText(firstName+" "+lastName);
                     emailId.setText(email);
                     if (!mobile.equals("null"))
-                    mobileNo.setText(mobile);
-
+                        mobileNo.setText(mobile);
 
                     String[] image = dpLink.split("/"); //Backend.serverUrl+"/media/HR/images/DP/"
                     String dp = image[7];
@@ -111,24 +106,29 @@ public class MainActivity extends AppCompatActivity {
 
 //                    String path = LoginActivity.file.getAbsolutePath()+"/image";
 //                    file1 = LoginActivity.file.getAbsoluteFile();
-                    if (!isExternalStorageWritable()) {
+
+//                    if (!isExternalStorageWritable()) {
                         FileOutputStream outputStream;
                         try {
-                            file1 = new File(LoginActivity.file.getAbsolutePath(), dp);
-                            file1.createNewFile();
-                            outputStream = new FileOutputStream(file1 + "/"+ dp);
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                            outputStream.flush();
-//                            outputStream.write(dp.getBytes());
+                            file1 = new File(LoginActivity.file + "/" + dp);
+                            if (file1.exists())
+                                file1.delete();
+//                            file1.createNewFile();
+                            outputStream = new FileOutputStream(file1);
+                            outputStream.write(dp.getBytes());
+//                            outputStream.flush();
                             outputStream.close();
+//                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    }
-                    bitmap = BitmapFactory.decodeFile(Environment.getExternalStorageState()+"/CIOC/"+ dp);
-                    if (bitmap != null){
-                        profilePic.setImageBitmap(bitmap);
-                    }
+//
+
+                        bitmap = BitmapFactory.decodeFile(LoginActivity.file + "/" + dp);
+                        if (bitmap != null) {
+                            profilePic.setImageBitmap(bitmap);
+                        }
+//                    }
 
                 }catch (JSONException e){
                     e.printStackTrace();
@@ -150,24 +150,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
         logoutButton = findViewById(R.id.logout_button);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sessionManager.clearAll();
                 File dir = LoginActivity.file;
-                if (dir.isDirectory())
-                {
+                if (dir.isDirectory()) {
                     String[] children = dir.list();
                     for (int i = 0; i < children.length; i++)
                     {
                         new File(dir, children[i]).delete();
                     }
                     dir.delete();
-                    stopService(new Intent(MainActivity.this, BackgroundService.class));
                 }
+                stopService(new Intent(MainActivity.this, BackgroundService.class));
                 startActivity(new Intent(MainActivity.this, FlashActivity.class));
                 finish();
             }

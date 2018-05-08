@@ -25,6 +25,8 @@ public class BackgroundService extends Service {
     private Timer mTimer = null;// timer handling
     TimerTask timerTask;
 
+    SessionManager sessionManager;
+
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -47,6 +49,7 @@ public class BackgroundService extends Service {
 
     @Override
     public void onCreate() {
+        sessionManager = new SessionManager(this);
         // cancel if service is  already existed
         if(mTimer!=null)
             mTimer.cancel();
@@ -57,7 +60,6 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "In Destroy", Toast.LENGTH_SHORT).show(); //display toast when method called
         try {
             mTimer.cancel();
             timerTask.cancel();
@@ -92,13 +94,13 @@ public class BackgroundService extends Service {
         super.onStartCommand(intent, flags, startId);
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
-//        boolean res = sessionManager.getStatus();
-//        if (res) {
+        boolean res = sessionManager.getStatus();
+        if (res) {
             intent = new Intent("com.cioc.libreerp.backendservice");
             intent.putExtra("yourvalue", "torestore");
             sendBroadcast(intent);
             return START_STICKY;
-//        }
-//        else return START_STICKY_COMPATIBILITY;
+        }
+        else return START_STICKY_COMPATIBILITY;
     }
 }

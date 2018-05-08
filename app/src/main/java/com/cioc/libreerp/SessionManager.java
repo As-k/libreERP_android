@@ -46,7 +46,7 @@ public class SessionManager {
         return sp.getBoolean(STATUS, false);
     }
 
-    public void setSTATUS(boolean status) {
+    public void setStatus(boolean status) {
         spe.putBoolean(STATUS, status);
         spe.commit();
     }

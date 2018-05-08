@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 
+
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
@@ -31,4 +32,7 @@ dependencies {
     compile 'com.loopj.android:android-async-http:1.4.9'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'io.crossbar.autobahn:autobahn-android:18.5.1'
+    compile 'org.greenrobot:greendao:3.2.0'
+    compile 'com.google.android.gms:play-services:11.8.0'
+    compile 'org.jetbrains:annotations-java5:15.0'
 }

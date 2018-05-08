@@ -42,6 +42,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
             Intent startServiceIntent = new Intent(context, BackgroundService.class);
             context.startService(startServiceIntent);
+            context.startService(new Intent(context, LocationService.class));
         }
     }
 

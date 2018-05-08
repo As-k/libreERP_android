@@ -9,9 +9,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -61,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor spEditor;
     SessionManager sessionManager;
-    boolean res;
+    public static boolean res, loc;
     String csrfId, sessionId;
 
     public static File file;
@@ -87,6 +89,11 @@ public class LoginActivity extends AppCompatActivity {
         client.setCookieStore(httpCookieStore);
 
         isStoragePermissionGranted();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            return;
+        }
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
@@ -115,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
+
 
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -202,6 +210,8 @@ public class LoginActivity extends AppCompatActivity {
                 csrfId = sessionManager.getCsrfId();
                 sessionId = sessionManager.getSessionId();
 
+                loc = csrfId.equals("") && sessionId.equals("");
+
                 if (csrfId.equals("") && sessionId.equals("")) {
                     RequestParams params = new RequestParams();
                     params.put("username", userName);
@@ -269,6 +279,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     mServiceIntent = new Intent(context, BackgroundService.class);
                                     startService(mServiceIntent);
+                                    startService(new Intent(LoginActivity.this, LocationService.class));
 
                                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                     finish();
@@ -280,9 +291,9 @@ public class LoginActivity extends AppCompatActivity {
                             Log.e("LoginActivity", "  finished");
                         }
                     });
-                } else {
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
+//                } else {
+//                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+//                    finish();
                 }
             }
         }
@@ -305,38 +316,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         return file;
     }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        // Register for the particular broadcast based on ACTION string
-//        IntentFilter filter = new IntentFilter(BackgroundService.ACTION);
-//        LocalBroadcastManager.getInstance(this).registerReceiver(testReceiver, filter);
-//        // or `registerReceiver(testReceiver, filter)` for a normal broadcast
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        // Unregister the listener when the application is paused
-//        LocalBroadcastManager.getInstance(this).unregisterReceiver(testReceiver);
-//        // or `unregisterReceiver(testReceiver)` for a normal broadcast
-//    }
-//
-//    // Define the callback for what to do when data is received
-//    private BroadcastReceiver testReceiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            int resultCode = intent.getIntExtra("resultCode", RESULT_CANCELED);
-//            if (resultCode == RESULT_OK) {
-//                String resultValue = intent.getStringExtra("resultValue");
-//                Toast.makeText(LoginActivity.this, resultValue, Toast.LENGTH_SHORT).show();
-//                intent = new Intent("backendservice");
-//                intent.putExtra("yourvalue", "torestore");
-//                sendBroadcast(intent);
-//            }
-//        }
-//    };
 
     @Override
     protected void onDestroy() {
