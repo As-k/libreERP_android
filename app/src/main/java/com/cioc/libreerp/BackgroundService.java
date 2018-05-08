@@ -19,6 +19,7 @@ import java.util.TimerTask;
  */
 
 public class BackgroundService extends Service {
+    public static final String ACTION = "com.cioc.libreerp.backendservice";
     public static final long INTERVAL = 5000;//variable to execute services every 10 second
     private Handler mHandler = new Handler(); // run on another Thread to avoid crash
     private Timer mTimer = null;// timer handling
@@ -51,12 +52,12 @@ public class BackgroundService extends Service {
             mTimer.cancel();
         else
             mTimer=new Timer(); // recreate new timer
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(),0,INTERVAL);// schedule task
+        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(),0,INTERVAL); // schedule task
     }
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "In Destroy", Toast.LENGTH_SHORT).show();//display toast when method called
+        Toast.makeText(this, "In Destroy", Toast.LENGTH_SHORT).show(); //display toast when method called
         try {
             mTimer.cancel();
             timerTask.cancel();

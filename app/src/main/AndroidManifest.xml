@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cioc.libreerp">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -10,23 +12,22 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".LoginActivity">
 
         </activity>
 
         <service
             android:name=".BackgroundService"
-            android:enabled="true"></service>
+            android:enabled="true" />
 
         <receiver
             android:name=".BackgroundBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
-            android:label="BackgroundBroadcastReceiver"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            android:label="BackgroundBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.cioc.libreerp.backendservice" />
                 <action android:name="android.intent.action.REBOOT" />
@@ -34,7 +35,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".FlashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,6 +43,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ChangePasswordActivity"></activity>
     </application>
 
 </manifest>

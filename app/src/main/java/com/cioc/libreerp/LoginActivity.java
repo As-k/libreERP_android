@@ -1,10 +1,18 @@
 package com.cioc.libreerp;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,18 +64,20 @@ public class LoginActivity extends AppCompatActivity {
     boolean res;
     String csrfId, sessionId;
 
-    String STATUS = "status";
+    public static File file;
+
+    public static String fileName = "cioc.libre.keys";
+
+    String TAG = "status";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        context = LoginActivity.this.getApplicationContext();
         getSupportActionBar().hide();
 //
-//        mServiceIntent = new Intent(context, BackgroundService.class);
-//
-//        startService(mServiceIntent);
 
         sessionManager = new SessionManager(this);
 
@@ -75,6 +85,8 @@ public class LoginActivity extends AppCompatActivity {
         httpCookieStore.clear();
         client = new AsyncHttpClient();
         client.setCookieStore(httpCookieStore);
+
+        isStoragePermissionGranted();
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
@@ -101,7 +113,37 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
     }
+
+    public  boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG,"Permission is granted");
+                return true;
+            } else {
+
+                Log.v(TAG,"Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG,"Permission is granted");
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+            Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+            //resume tasks needing this permission
+        }
+    }
+
 
     public void forgotPassword(View v){
         llPassword.setVisibility(View.GONE);
@@ -170,7 +212,6 @@ public class LoginActivity extends AppCompatActivity {
                     client.post(backend.serverUrl + "/login/?mode=api", params, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject c) {
-                            Toast.makeText(LoginActivity.this, "success", Toast.LENGTH_SHORT).show();
                             Log.e("LoginActivity", "  onSuccess");
 
 
@@ -211,16 +252,38 @@ public class LoginActivity extends AppCompatActivity {
                                 sessionManager.setCsrfId(csrf_token);
                                 sessionManager.setSessionId(session_id);
 
-                                getUser();
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                finish();
+//                                getPublicAlbumStorageDir("Libre");
+//                                File directory = Environment.getExternalStoragePublicDirectory("Libre");
+//                                file = new File(directory, fileName);
+                                file = new File(Environment.getExternalStorageDirectory()+"/CIOC");
+                                if (file.mkdir()) {
+                                    Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
+                                    String fileContents = "csrf_token " + sessionManager.getCsrfId() + "\n session_id " + sessionManager.getSessionId();
+                                    FileOutputStream outputStream;
+                                    try {
+                                        String path = file.getAbsolutePath() + "/libre.txt";
+                                        outputStream = new FileOutputStream(path);
+                                        outputStream.write(fileContents.getBytes());
+                                        outputStream.close();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    Log.e("isExternalStorageWritable", "" + context.getFilesDir().getAbsoluteFile().getPath());
+
+                                    mServiceIntent = new Intent(context, BackgroundService.class);
+                                    startService(mServiceIntent);
+
+                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                    finish();
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Dir not created", Toast.LENGTH_SHORT).show();
+                                }
 
                             }
                             Log.e("LoginActivity", "  finished");
                         }
                     });
                 } else {
-                    getUser();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 }
@@ -228,62 +291,55 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    protected void getUser(){
-        client.get(backend.serverUrl + "/api/HR/users/?mode=mySelf&format=json", new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                Log.e("getUser", "  success");
-                try {
-                    JSONObject usrObj = response.getJSONObject(0);
-                    String username = usrObj.getString("username");
-                    String firstName = usrObj.getString("first_name");
-                    Integer pk = usrObj.getInt("pk");
-                    String lastName = usrObj.getString("last_name");
-                    JSONObject profileObj = usrObj.getJSONObject("profile");
-                    String DPLink = profileObj.getString("displayPicture");
-
-//                    user = new User(username ,pk);
-//                    user.setFirstName(firstName);
-//                    user.setLastName(lastName);
-
-//                    client.get(DPLink, new FileAsyncHttpResponseHandler(context) {
-//                        @Override
-//                        public void onSuccess(int statusCode, Header[] headers, File file) {
-//                            // Do something with the file `response`
-//                            writeConfigFile(context);
-//                            Bitmap pp = BitmapFactory.decodeFile(file.getAbsolutePath());
-//                            user.setProfilePicture(pp);
-//                            user.saveUserToFile(context);
-//                            Intent intent = new Intent(context, HomeActivity.class);
-//                            startActivity(intent);
-//                        }
-//                        @Override
-//                        public void onFailure(int statusCode, Header[] headers,Throwable e, File file) {
-//                            // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-//                            System.out.println("failure");
-//                            System.out.println(statusCode);
-//                        }
-//                    });
-
-                    System.out.println(username);
-                }catch (JSONException e){
-                    throw  new RuntimeException(e);
-                }
-            }
-            @Override
-            public void onFinish() {
-                System.out.println("finished 001");
-                Log.e("getUser", "  finish");
-
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable e, JSONObject errorResponse) {
-                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-                System.out.println("finished failed 001");
-                Log.e("getUser", "  onFailure");
-            }
-        });
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
     }
+
+    public File getPublicAlbumStorageDir(String albumName) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), albumName);
+        if (!file.mkdirs()) {
+            Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
+        }
+        return file;
+    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        // Register for the particular broadcast based on ACTION string
+//        IntentFilter filter = new IntentFilter(BackgroundService.ACTION);
+//        LocalBroadcastManager.getInstance(this).registerReceiver(testReceiver, filter);
+//        // or `registerReceiver(testReceiver, filter)` for a normal broadcast
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        // Unregister the listener when the application is paused
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(testReceiver);
+//        // or `unregisterReceiver(testReceiver)` for a normal broadcast
+//    }
+//
+//    // Define the callback for what to do when data is received
+//    private BroadcastReceiver testReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            int resultCode = intent.getIntExtra("resultCode", RESULT_CANCELED);
+//            if (resultCode == RESULT_OK) {
+//                String resultValue = intent.getStringExtra("resultValue");
+//                Toast.makeText(LoginActivity.this, resultValue, Toast.LENGTH_SHORT).show();
+//                intent = new Intent("backendservice");
+//                intent.putExtra("yourvalue", "torestore");
+//                sendBroadcast(intent);
+//            }
+//        }
+//    };
 
     @Override
     protected void onDestroy() {
@@ -292,6 +348,5 @@ public class LoginActivity extends AppCompatActivity {
         sendBroadcast(intent);
         Log.i("MAINACT", "onDestroy!");
         super.onDestroy();
-
     }
 }

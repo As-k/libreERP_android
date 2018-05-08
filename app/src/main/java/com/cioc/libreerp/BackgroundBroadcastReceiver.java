@@ -5,16 +5,62 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
+import android.widget.Toast;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import io.crossbar.autobahn.wamp.Client;
+import io.crossbar.autobahn.wamp.Session;
+import io.crossbar.autobahn.wamp.types.EventDetails;
+import io.crossbar.autobahn.wamp.types.ExitInfo;
+import io.crossbar.autobahn.wamp.types.SessionDetails;
+import io.crossbar.autobahn.wamp.types.Subscription;
 
 /**
  * Created by admin on 30/04/18.
  */
 
 public class BackgroundBroadcastReceiver extends BroadcastReceiver {
+
+    SessionManager sessionManager;
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(BackgroundBroadcastReceiver.class.getSimpleName(), "Service Stops! Oooooooooooooppppssssss!!!!");
-        Intent startServiceIntent = new Intent(context, BackgroundBroadcastReceiver.class);
-        context.startService(startServiceIntent);
+
+        sessionManager = new SessionManager(context);
+
+        if (sessionManager.getSessionId() != null && sessionManager.getSessionId() != null) {
+            Session session = new Session();
+            // Add all onJoin listeners
+            session.addOnJoinListener(this::demonstrateSubscribe);
+
+            // finally, provide everything to a Client and connect
+            Client client = new Client(session, "ws://192.168.1.113:8080/ws", "default");
+            CompletableFuture<ExitInfo> exitInfoCompletableFuture = client.connect();
+
+            Intent startServiceIntent = new Intent(context, BackgroundService.class);
+            context.startService(startServiceIntent);
+        }
+    }
+
+    public void demonstrateSubscribe(Session session, SessionDetails details) {
+        // Subscribe to topic to receive its events.
+        CompletableFuture<Subscription> subFuture = session.subscribe("service.chat.admin",
+                this::onEvent);
+        subFuture.whenComplete((subscription, throwable) -> {
+            if (throwable == null) {
+                // We have successfully subscribed.
+                System.out.println("Subscribed to topic " + subscription.topic);
+            } else {
+                // Something went bad.
+                throwable.printStackTrace();
+            }
+        });
+    }
+
+    private void onEvent(List<Object> args, Map<String, Object> kwargs, EventDetails details) {
+        System.out.println(String.format("Got event: %s", args.get(0)));
     }
 }
