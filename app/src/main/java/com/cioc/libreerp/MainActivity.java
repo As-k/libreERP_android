@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     File file1;
     static int pk;
 
+    Bitmap bitmap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         mobileNo = findViewById(R.id.mobileNo);
 
         profilePic = findViewById(R.id.profile_image);
+        startService(new Intent(this, BackgroundService.class));
 
 
         httpclient.get(Backend.serverUrl + "/api/HR/users/?mode=mySelf&format=json", new JsonHttpResponseHandler() { //
@@ -108,22 +111,24 @@ public class MainActivity extends AppCompatActivity {
 
 //                    String path = LoginActivity.file.getAbsolutePath()+"/image";
 //                    file1 = LoginActivity.file.getAbsoluteFile();
-                    FileOutputStream outputStream;
-                    try {
-                        file1 = new File(LoginActivity.file.getAbsolutePath());
-                        outputStream = new FileOutputStream(file1+"/"+dp);
-                        outputStream.write(dp.getBytes());
-                        outputStream.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (!isExternalStorageWritable()) {
+                        FileOutputStream outputStream;
+                        try {
+                            file1 = new File(LoginActivity.file.getAbsolutePath(), dp);
+                            file1.createNewFile();
+                            outputStream = new FileOutputStream(file1 + "/"+ dp);
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                            outputStream.flush();
+//                            outputStream.write(dp.getBytes());
+                            outputStream.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-
-                    Bitmap bit = BitmapFactory.decodeFile(file1.getAbsolutePath()+"/"+dp);
-                    if (bit != null){
-                        profilePic.setImageBitmap(bit);
+                    bitmap = BitmapFactory.decodeFile(Environment.getExternalStorageState()+"/CIOC/"+ dp);
+                    if (bitmap != null){
+                        profilePic.setImageBitmap(bitmap);
                     }
-
-
 
                 }catch (JSONException e){
                     e.printStackTrace();
@@ -152,18 +157,32 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sessionManager.clearAll();
-                getApplicationContext().deleteFile(LoginActivity.fileName);
+                File dir = LoginActivity.file;
+                if (dir.isDirectory())
+                {
+                    String[] children = dir.list();
+                    for (int i = 0; i < children.length; i++)
+                    {
+                        new File(dir, children[i]).delete();
+                    }
+                    dir.delete();
+                    stopService(new Intent(MainActivity.this, BackgroundService.class));
+                }
                 startActivity(new Intent(MainActivity.this, FlashActivity.class));
                 finish();
             }
         });
 
-
-
-
-
-
     }
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
 
     public void changePassword(View v){
         startActivity(new Intent(this, ChangePasswordActivity.class));

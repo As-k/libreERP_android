@@ -203,8 +203,6 @@ public class LoginActivity extends AppCompatActivity {
                 sessionId = sessionManager.getSessionId();
 
                 if (csrfId.equals("") && sessionId.equals("")) {
-
-
                     RequestParams params = new RequestParams();
                     params.put("username", userName);
                     params.put("password", pass);
@@ -236,7 +234,6 @@ public class LoginActivity extends AppCompatActivity {
                             if (lst.isEmpty()) {
                                 Toast.makeText(LoginActivity.this, String.format("Error , Empty cookie store"), Toast.LENGTH_SHORT).show();
                             } else {
-
                                 if (lst.size() < 2) {
                                     String msg = String.format("Error while logining, fetal error!");
                                     Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_SHORT).show();
