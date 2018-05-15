@@ -20,7 +20,7 @@ import java.util.TimerTask;
 
 public class BackgroundService extends Service {
     public static final String ACTION = "com.cioc.libreerp.backendservice";
-    public static final long INTERVAL = 5000;//variable to execute services every 10 second
+    public static final long INTERVAL = 1000*30;//variable to execute services every 10 second
     private Handler mHandler = new Handler(); // run on another Thread to avoid crash
     private Timer mTimer = null;// timer handling
     TimerTask timerTask;
@@ -60,15 +60,16 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
+        Toast.makeText(this, ""+ sessionManager.getStatus(), Toast.LENGTH_SHORT).show();
         try {
             mTimer.cancel();
             timerTask.cancel();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Intent intent = new Intent("com.cioc.libreerp.backendservice");
-        intent.putExtra("yourvalue", "torestore");
-        sendBroadcast(intent);
+//        Intent intent = new Intent("com.cioc.libreerp.backendservice");
+//        intent.putExtra("yourvalue", "torestore");
+//        sendBroadcast(intent);
     }
 
 
@@ -81,7 +82,7 @@ public class BackgroundService extends Service {
                 @Override
                 public void run() {
                     // display toast at every 10 second
-                    Toast.makeText(getApplicationContext(), "service running", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getApplicationContext(), "service running", Toast.LENGTH_SHORT).show();
                 }
             });
         }

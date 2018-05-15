@@ -15,11 +15,12 @@ public class SessionManager {
     private String csrfId = "csrftoken";
     private String sessionId = "sessionid";
     private String STATUS = "status";
+    private String pk = "last_updated_pk";
 
     public SessionManager(Context context) {
         this.context = context;
         sp = context.getSharedPreferences("registered_status", Context.MODE_PRIVATE);
-
+        spe = sp.edit();
     }
 
     public String getCsrfId() {
@@ -27,7 +28,6 @@ public class SessionManager {
     }
 
     public void setCsrfId(String csrf) {
-        spe = sp.edit();
         spe.putString(csrfId, csrf);
         spe.apply();
     }
@@ -37,7 +37,6 @@ public class SessionManager {
     }
 
     public void setSessionId(String session) {
-        spe = sp.edit();
         spe.putString(sessionId, session);
         spe.apply();
     }
@@ -49,6 +48,15 @@ public class SessionManager {
     public void setStatus(boolean status) {
         spe.putBoolean(STATUS, status);
         spe.commit();
+    }
+
+    public int getLastUpdatedPk() {
+        return sp.getInt(pk,0);
+    }
+
+    public void setLastUpdatedPk(int last_pk) {
+        spe.putInt(pk, last_pk);
+        spe.apply();
     }
 
     public void clearAll(){

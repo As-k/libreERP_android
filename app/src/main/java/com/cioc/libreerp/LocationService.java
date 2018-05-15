@@ -1,8 +1,11 @@
 package com.cioc.libreerp;
 
+import android.*;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -11,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,12 +29,16 @@ import com.cioc.libreerp.db.GPSLocationDao;
 
 import org.greenrobot.greendao.query.Query;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.jar.*;
 
 /**
  * Created by Ashish on 2/9/2018.
@@ -38,7 +46,7 @@ import java.util.TimerTask;
 
 public class LocationService extends Service implements LocationListener {
     public static final String ACTION = "com.cioc.libreerp.LocationService";
-    public static final long INTERVAL = 5000;//variable to execute services every 10 second
+    public static final long INTERVAL = 3000;//variable to execute services every 10 second
     private Handler mHandler = new Handler(); // run on another Thread to avoid crash
     private Timer mTimer = null;// timer handling
     TimerTask timerTask;
@@ -70,11 +78,11 @@ public class LocationService extends Service implements LocationListener {
         gpsLocation = gpsLocationDao.queryBuilder().orderAsc(GPSLocationDao.Properties.Id).build();
         isLocationEnabled();
 
-        if(mTimer!=null)
+        if(mTimer != null)
             mTimer.cancel();
         else
-            mTimer=new Timer(); // recreate new timer
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(),0,INTERVAL);// schedule task
+            mTimer = new Timer(); // recreate new timer
+        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(),0,INTERVAL); // schedule task
     }
 
     @Override
@@ -123,7 +131,7 @@ public class LocationService extends Service implements LocationListener {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             loc = locationText1.getText() + "\n"+ addresses.get(0).getAddressLine(0)+"\n" +
-                    addresses.get(0).getAddressLine(1);//+addresses.get(0).getAddressLine(2);
+                    addresses.get(0).getAddressLine(1); //+addresses.get(0).getAddressLine(2);
             locationText1.setText(loc);
             addLocation();
         }catch(Exception e) {
@@ -165,7 +173,8 @@ public class LocationService extends Service implements LocationListener {
     }
     public void getLocation() {
         try {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 1, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 1, this);
+//            Toast.makeText(getApplicationContext(), "Location Notify", Toast.LENGTH_SHORT).show();
         }
         catch(SecurityException e) {
             e.printStackTrace();
@@ -173,18 +182,35 @@ public class LocationService extends Service implements LocationListener {
     }
 
     public void addLocation() {
-        GPSLocation gps = new GPSLocation();
-        gps.setLongitude_value(longitude.getText().toString());
-        gps.setLatitude_value(latitude.getText().toString());
-        gps.setDate_time(date_time);
-        gpsLocationDao.insert(gps);
-        Log.e("DaoExample", "Inserted new gspLocation, ID: " + gps.getId()+" "+gps.getLatitude_value()+" "+gps.getLongitude_value()+" "+gps.getDate_time());
+        if (sessionManager.getStatus()) {
+            GPSLocation gps = new GPSLocation();
+            gps.setLongitude_value(longitude.getText().toString());
+            gps.setLatitude_value(latitude.getText().toString());
+            gps.setDate_time(date_time);
+            gpsLocationDao.insert(gps);
+
+//        String Json_data = "{\"updated_location\":{\"id\":"+gps.getId()+",\"latitude\":"+gps.getLatitude_value()+",\"longitude\":" + gps.getLatitude_value() + ",\"datetime\":" + gps.getDate_time()+"\"}";
+//
+//        try {
+//            JSONObject jsonObject = new JSONObject(Json_data);
+//            JSONArray jsonArray = jsonObject.getJSONArray("updated_location");
+//            for (int i=0; i<jsonArray.length(); i++) {
+//                int id = jsonArray.getInt(i);
+//            }
+//
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+
+            Log.e("DaoExample", "Inserted new gspLocation, ID: " + gps.getId() + " " + gps.getLatitude_value() + " " + gps.getLongitude_value() + " " + gps.getDate_time());
+//        Toast.makeText(this, ""+gpsLocationDao.count(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.e("LocalService", "Received start id " + startId + ": " + intent);
+//        Log.e("LocalService", "Received start id " + startId + ": " + intent);
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         boolean res = sessionManager.getStatus();
@@ -193,7 +219,11 @@ public class LocationService extends Service implements LocationListener {
             intent.putExtra("yourvalue", "torestore");
             sendBroadcast(intent);
             return START_STICKY;
+        } else {
+//            ComponentName receiver = new ComponentName(this, BackgroundBroadcastReceiver.class);
+//            PackageManager pm = this.getPackageManager();
+//            pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            return START_STICKY_COMPATIBILITY;
         }
-        else return START_STICKY_COMPATIBILITY;
     }
 }

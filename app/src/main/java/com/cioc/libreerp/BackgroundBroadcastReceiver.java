@@ -23,15 +23,23 @@ import io.crossbar.autobahn.wamp.types.Subscription;
  */
 
 public class BackgroundBroadcastReceiver extends BroadcastReceiver {
-
+    boolean res;
     SessionManager sessionManager;
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
         sessionManager = new SessionManager(context);
+        res = sessionManager.getStatus();
+        if (res) {
+//            Toast.makeText(context, "loc broadcast service", Toast.LENGTH_SHORT).show();
+            context.startService(new Intent(context, LocationService.class));
+        } else {
+            context.stopService(new Intent(context, LocationService.class));
+        }
 
-        if (sessionManager.getSessionId() != null && sessionManager.getSessionId() != null) {
+        if (sessionManager.getSessionId() != "" && sessionManager.getSessionId() != "") {
+//            Toast.makeText(context, "loc B Destroy", Toast.LENGTH_SHORT).show();
             Session session = new Session();
             // Add all onJoin listeners
             session.addOnJoinListener(this::demonstrateSubscribe);
@@ -40,10 +48,10 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             Client client = new Client(session, "ws://192.168.1.113:8080/ws", "default");
             CompletableFuture<ExitInfo> exitInfoCompletableFuture = client.connect();
 
-            Intent startServiceIntent = new Intent(context, BackgroundService.class);
-            context.startService(startServiceIntent);
-            context.startService(new Intent(context, LocationService.class));
+//            context.startService(new Intent(context, BackgroundService.class));
         }
+
+
     }
 
     public void demonstrateSubscribe(Session session, SessionDetails details) {

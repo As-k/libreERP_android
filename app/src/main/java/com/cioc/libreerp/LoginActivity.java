@@ -72,6 +72,7 @@ public class LoginActivity extends AppCompatActivity {
 
     String TAG = "status";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +80,6 @@ public class LoginActivity extends AppCompatActivity {
 
         context = LoginActivity.this.getApplicationContext();
         getSupportActionBar().hide();
-//
 
         sessionManager = new SessionManager(this);
 
@@ -89,16 +89,10 @@ public class LoginActivity extends AppCompatActivity {
         client.setCookieStore(httpCookieStore);
 
         isStoragePermissionGranted();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            return;
-        }
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         otpEdit = findViewById(R.id.otpEdit);
-
 
         forgot= findViewById(R.id.forgot_password);
         goBack= findViewById(R.id.go_back);
@@ -113,6 +107,11 @@ public class LoginActivity extends AppCompatActivity {
         getOTP = findViewById(R.id.get_otp);
         getOTP.setVisibility(View.GONE);
 
+        if(!(sessionManager.getCsrfId() == "" && sessionManager.getCsrfId() == "")){
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }
+
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,20 +119,20 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
 
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
+                    == PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.v(TAG,"Permission is granted");
                 return true;
             } else {
 
                 Log.v(TAG,"Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
                 return false;
             }
         }
@@ -146,9 +145,24 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-            Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
-            //resume tasks needing this permission
+
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.v(TAG, "Permission: " + permissions[0] + "was " + grantResults[0]);
+                    //resume tasks needing this permission
+                }
+                return;
+            }
+            case 2: {
+                if (grantResults.length > 0
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    Log.v(TAG, "Permission: " + permissions[1] + "was " + grantResults[1]);
+                    //resume tasks needing this permission
+                }
+                return;
+            }
         }
     }
 
@@ -188,9 +202,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
     }
-
 
 
     public void login(){
@@ -221,8 +233,6 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject c) {
                             Log.e("LoginActivity", "  onSuccess");
-
-
                             super.onSuccess(statusCode, headers, c);
 
                         }
@@ -230,7 +240,6 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(int statusCode, Header[] headers, Throwable e, JSONObject c) {
                             super.onFailure(statusCode, headers, e, c);
-
                             if (statusCode == 401) {
                                 Toast.makeText(LoginActivity.this, "un success", Toast.LENGTH_SHORT).show();
                                 Log.e("LoginActivity", "  onFailure");
@@ -243,10 +252,12 @@ public class LoginActivity extends AppCompatActivity {
                             List<Cookie> lst = httpCookieStore.getCookies();
                             if (lst.isEmpty()) {
                                 Toast.makeText(LoginActivity.this, String.format("Error , Empty cookie store"), Toast.LENGTH_SHORT).show();
+                                Log.e("LoginActivity", "Empty cookie store");
                             } else {
                                 if (lst.size() < 2) {
                                     String msg = String.format("Error while logining, fetal error!");
                                     Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                    Log.e("LoginActivity", ""+msg);
                                     return;
                                 }
 
@@ -256,14 +267,14 @@ public class LoginActivity extends AppCompatActivity {
                                 String csrf_token = csrfCookie.getValue();
                                 String session_id = sessionCookie.getValue();
 
-                                sessionManager.setCsrfId(csrf_token);
-                                sessionManager.setSessionId(session_id);
 
 //                                getPublicAlbumStorageDir("Libre");
 //                                File directory = Environment.getExternalStoragePublicDirectory("Libre");
 //                                file = new File(directory, fileName);
                                 file = new File(Environment.getExternalStorageDirectory()+"/CIOC");
                                 if (file.mkdir()) {
+                                    sessionManager.setCsrfId(csrf_token);
+                                    sessionManager.setSessionId(session_id);
                                     Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
                                     String fileContents = "csrf_token " + sessionManager.getCsrfId() + "\n session_id " + sessionManager.getSessionId();
                                     FileOutputStream outputStream;
@@ -277,9 +288,9 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                     Log.e("isExternalStorageWritable", "" + context.getFilesDir().getAbsoluteFile().getPath());
 
-                                    mServiceIntent = new Intent(context, BackgroundService.class);
-                                    startService(mServiceIntent);
-                                    startService(new Intent(LoginActivity.this, LocationService.class));
+//                                    mServiceIntent = new Intent(context, BackgroundService.class);
+//                                    startService(mServiceIntent);
+//                                    startService(new Intent(LoginActivity.this, LocationService.class));
 
                                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                     finish();
@@ -291,9 +302,9 @@ public class LoginActivity extends AppCompatActivity {
                             Log.e("LoginActivity", "  finished");
                         }
                     });
-//                } else {
-//                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//                    finish();
+                } else {
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
                 }
             }
         }
@@ -315,14 +326,5 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
         }
         return file;
-    }
-
-    @Override
-    protected void onDestroy() {
-        Intent intent = new Intent("com.cioc.libreerp.backendservice");
-        intent.putExtra("yourvalue", "torestore");
-        sendBroadcast(intent);
-        Log.i("MAINACT", "onDestroy!");
-        super.onDestroy();
     }
 }

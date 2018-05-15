@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/profilesDetails_cardView"
+    android:layout_marginTop="3dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginLeft="5dp"
+    app:cardBackgroundColor="@color/project_color"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="1dp"
+    app:cardUseCompatPadding="true"
+
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/profile_name"
+                style="@style/textview_style"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="Text Name" />
+
+            <ImageView
+                android:id="@+id/profile_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="end"
+                android:layout_marginEnd="10dp"
+                android:layout_toStartOf="@+id/person_call"
+                android:src="@drawable/ic_person_pin_circle" />
+
+            <ImageView
+                android:id="@+id/person_call"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="end"
+                android:layout_marginEnd="10dp"
+                android:layout_toStartOf="@+id/popup_menu"
+                android:src="@drawable/ic_phone" />
+
+            <ImageView
+                android:id="@+id/popup_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="end"
+                android:paddingRight="5dp"
+                android:src="@drawable/ic_popup_menu" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            >
+
+            <ImageView
+                android:id="@+id/time_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/timing"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/ic_access_time" />
+
+            <TextView
+                android:id="@+id/timing"
+                style="@style/textview_style"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="3dp"
+                android:layout_toEndOf="@+id/time_img"
+                android:text="12:00 PM"
+                android:textSize="10dp" />
+        </RelativeLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

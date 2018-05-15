@@ -9,7 +9,7 @@ public class FlashActivity extends AppCompatActivity {
 
     private Handler hd = new Handler();
     SessionManager sessionManager;
-    public static boolean res, loc;
+    boolean res; //, loc;
 
     String STATUS = "status";
     String csrfId, sessionId;
@@ -31,18 +31,18 @@ public class FlashActivity extends AppCompatActivity {
         hd.postDelayed(new Runnable() {
             @Override
             public void run() {
-                loc = csrfId.equals("") && sessionId.equals("");
+//                loc = csrfId.equals("") && sessionId.equals("");
                 if (csrfId.equals("") && sessionId.equals("")) {
 //                        if (res) {
 //                            startActivity(new Intent(FlashActivity.this, MainActivity.class));
 //                        } else {
                         startActivity(new Intent(FlashActivity.this, LoginActivity.class));
-                        sessionManager.setStatus(false);
+//                        sessionManager.setStatus(false);
 //                        }
-                    }else {
-                        startActivity(new Intent(FlashActivity.this, MainActivity.class));
-                        sessionManager.setStatus(true);
-                    }
+                } else {
+                    startActivity(new Intent(FlashActivity.this, MainActivity.class));
+//                    sessionManager.setStatus(true);
+                }
                 finish();
             }
         },3000);
