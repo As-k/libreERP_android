@@ -9,9 +9,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private Handler hd = new Handler();
     SessionManager sessionManager;
-    boolean res; //, loc;
-
-    String STATUS = "status";
+    public static boolean res;
     String csrfId, sessionId;
 
     @Override
@@ -31,26 +29,13 @@ public class SplashActivity extends AppCompatActivity {
         hd.postDelayed(new Runnable() {
             @Override
             public void run() {
-//                loc = csrfId.equals("") && sessionId.equals("");
                 if (csrfId.equals("") && sessionId.equals("")) {
-//                        if (res) {
-//                            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-//                        } else {
-                        startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-//                        sessionManager.setStatus(false);
-//                        }
+                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                 } else {
                     startActivity(new Intent(SplashActivity.this, MainActivity.class));
-//                    sessionManager.setStatus(true);
                 }
                 finish();
             }
         },3000);
     }
-
-
-    public boolean isRes() {
-        return res;
-    }
-
 }

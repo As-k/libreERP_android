@@ -47,10 +47,10 @@ import cz.msebera.android.httpclient.client.CookieStore;
 import cz.msebera.android.httpclient.cookie.Cookie;
 
 public class LoginActivity extends AppCompatActivity {
-    AutoCompleteTextView username, password, otpEdit;
-    Button loginButton, getOTP;
-    LinearLayout llUsername, llPassword, llotpEdit;
-    TextView forgot, goBack;
+    AutoCompleteTextView username, password;//, otpEdit;
+    Button loginButton;//, getOTP;
+    LinearLayout llUsername, llPassword;//, llotpEdit;
+//    TextView forgot, goBack;
 
     Backend backend = new Backend(this);
 
@@ -89,23 +89,28 @@ public class LoginActivity extends AppCompatActivity {
         client.setCookieStore(httpCookieStore);
 
         isStoragePermissionGranted();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            return;
+        }
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
-        otpEdit = findViewById(R.id.otpEdit);
+//        otpEdit = findViewById(R.id.otpEdit);
 
-        forgot= findViewById(R.id.forgot_password);
-        goBack= findViewById(R.id.go_back);
-        goBack.setVisibility(View.GONE);
+//        forgot= findViewById(R.id.forgot_password);
+//        goBack= findViewById(R.id.go_back);
+//        goBack.setVisibility(View.GONE);
 
         llUsername = findViewById(R.id.llUsername);
         llPassword = findViewById(R.id.llPassword);
-        llotpEdit = findViewById(R.id.llOtp);
-        llotpEdit.setVisibility(View.GONE);
+//        llotpEdit = findViewById(R.id.llOtp);
+//        llotpEdit.setVisibility(View.GONE);
 
         loginButton = findViewById(R.id.sign_in_button);
-        getOTP = findViewById(R.id.get_otp);
-        getOTP.setVisibility(View.GONE);
+//        getOTP = findViewById(R.id.get_otp);
+//        getOTP.setVisibility(View.GONE);
 
         if(!(sessionManager.getCsrfId() == "" && sessionManager.getCsrfId() == "")){
             startActivity(new Intent(this, MainActivity.class));
@@ -165,42 +170,42 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    public void forgotPassword(View v){
-        llPassword.setVisibility(View.GONE);
-        loginButton.setVisibility(View.GONE);
-        llotpEdit.setVisibility(View.GONE);
-        forgot.setVisibility(View.GONE);
-        getOTP.setVisibility(View.VISIBLE);
-        goBack.setVisibility(View.VISIBLE);
-
-        goBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                llPassword.setVisibility(View.VISIBLE);
-                llUsername.setVisibility(View.VISIBLE);
-                loginButton.setVisibility(View.VISIBLE);
-                llotpEdit.setVisibility(View.GONE);
-                forgot.setVisibility(View.VISIBLE);
-                getOTP.setVisibility(View.GONE);
-                goBack.setVisibility(View.GONE);
-
-            }
-        });
-
-        getOTP.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                llPassword.setVisibility(View.GONE);
-                llUsername.setVisibility(View.GONE);
-                loginButton.setVisibility(View.GONE);
-                forgot.setVisibility(View.GONE);
-                llotpEdit.setVisibility(View.VISIBLE);
-                getOTP.setVisibility(View.VISIBLE);
-                goBack.setVisibility(View.VISIBLE);
-            }
-        });
-
-    }
+//    public void forgotPassword(View v){
+//        llPassword.setVisibility(View.GONE);
+//        loginButton.setVisibility(View.GONE);
+//        llotpEdit.setVisibility(View.GONE);
+//        forgot.setVisibility(View.GONE);
+//        getOTP.setVisibility(View.VISIBLE);
+//        goBack.setVisibility(View.VISIBLE);
+//
+//        goBack.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                llPassword.setVisibility(View.VISIBLE);
+//                llUsername.setVisibility(View.VISIBLE);
+//                loginButton.setVisibility(View.VISIBLE);
+//                llotpEdit.setVisibility(View.GONE);
+//                forgot.setVisibility(View.VISIBLE);
+//                getOTP.setVisibility(View.GONE);
+//                goBack.setVisibility(View.GONE);
+//
+//            }
+//        });
+//
+//        getOTP.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                llPassword.setVisibility(View.GONE);
+//                llUsername.setVisibility(View.GONE);
+//                loginButton.setVisibility(View.GONE);
+//                forgot.setVisibility(View.GONE);
+//                llotpEdit.setVisibility(View.VISIBLE);
+//                getOTP.setVisibility(View.VISIBLE);
+//                goBack.setVisibility(View.VISIBLE);
+//            }
+//        });
+//
+//    }
 
 
     public void login(){
@@ -290,7 +295,6 @@ public class LoginActivity extends AppCompatActivity {
 //                                    mServiceIntent = new Intent(context, BackgroundService.class);
 //                                    startService(mServiceIntent);
 //                                    startService(new Intent(LoginActivity.this, LocationService.class));
-
                                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                     finish();
                                 } else {
@@ -300,9 +304,9 @@ public class LoginActivity extends AppCompatActivity {
                             Log.e("LoginActivity", "  finished");
                         }
                     });
-                } else {
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
+//                } else {
+//                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+//                    finish();
                 }
             }
         }
@@ -324,5 +328,15 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
         }
         return file;
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        Intent intent = new Intent("com.cioc.libreerp.backendservice");
+        intent.putExtra("yourvalue", "torestore");
+        sendBroadcast(intent);
+        Log.i("MAINACT", "onDestroy!");
+        super.onDestroy();
     }
 }
