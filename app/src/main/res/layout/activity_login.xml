@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/login_banner"
     tools:context="com.cioc.libreerp.LoginActivity">
 
     <ScrollView
@@ -24,8 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:srcCompat="@drawable/logo"
-            android:layout_marginBottom="50dp"/>
+            app:srcCompat="@drawable/vamso"
+            android:layout_marginBottom="40dp"/>
 
             <LinearLayout
                 android:id="@+id/llUsername"
@@ -40,7 +41,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:scaleType="center"
-                    app:srcCompat="@drawable/user_icon" />
+                    app:srcCompat="@drawable/ic_person" />
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="274dp"

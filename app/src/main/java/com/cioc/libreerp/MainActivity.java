@@ -1,17 +1,10 @@
 package com.cioc.libreerp;
 
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,6 +22,7 @@ import com.cioc.libreerp.db.GPSLocation;
 import com.cioc.libreerp.db.GPSLocationDao;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -40,27 +34,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
 
 import cz.msebera.android.httpclient.Header;
-
-
-
-import io.crossbar.autobahn.wamp.Client;
-import io.crossbar.autobahn.wamp.Session;
-import io.crossbar.autobahn.wamp.types.CallResult;
-import io.crossbar.autobahn.wamp.types.CloseDetails;
-import io.crossbar.autobahn.wamp.types.EventDetails;
-import io.crossbar.autobahn.wamp.types.ExitInfo;
-import io.crossbar.autobahn.wamp.types.InvocationDetails;
-import io.crossbar.autobahn.wamp.types.Publication;
-import io.crossbar.autobahn.wamp.types.PublishOptions;
-import io.crossbar.autobahn.wamp.types.Registration;
-import io.crossbar.autobahn.wamp.types.SessionDetails;
-import io.crossbar.autobahn.wamp.types.Subscription;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -154,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String[] image = dpLink.split("/"); //Backend.serverUrl+"/media/HR/images/DP/"
                     String dp = image[7];
-                    Log.e("image",""+dp);
+                    Log.e("image "+dpLink,""+dp);
 //                    for (int item=0; item<image.length; item++) {
 //                        System.out.println("item = " + item);
 //                        Log.e("image"+item,""+image[item]);
@@ -164,29 +139,54 @@ public class MainActivity extends AppCompatActivity {
 //                    file1 = LoginActivity.file.getAbsoluteFile();
 
 //                    if (!isExternalStorageWritable()) {
-                        FileOutputStream outputStream;
-                        try {
-                            file1 = new File(LoginActivity.file + "/" + dp);
-                            if (file1.exists())
-                                file1.delete();
+                    httpclient.get(dpLink, new FileAsyncHttpResponseHandler(MainActivity.this) {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, File file) {
+                            // Do something with the file `response`
+//                            writeConfigFile(context);
+
+                            FileOutputStream outputStream;
+                            try {
+                                file1 = new File(Environment.getExternalStorageDirectory()+"/CIOC"+ "/" + dp);
+                                if (file1.exists())
+                                    file1.delete();
 //                            file1.createNewFile();
-                            outputStream = new FileOutputStream(file1);
-                            outputStream.write(dp.getBytes());
+                                outputStream = new FileOutputStream(file1);
+                                outputStream.write(dp.getBytes());
 //                            outputStream.flush();
-                            outputStream.close();
+                                outputStream.close();
 //                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            } catch (Exception e) {
+                                e.printStackTrace();
 //                        }
 //
 
-                        bitmap = BitmapFactory.decodeFile(LoginActivity.file + "/" + dp);
-                        if (bitmap != null) {
-                            profilePic.setImageBitmap(bitmap);
-                        }
-                    }
+//                                bitmap = BitmapFactory.decodeFile(LoginActivity.file + "/" + dp);
+//                                if (bitmap != null) {
+//                                    profilePic.setImageBitmap(bitmap);
+//                                }
+                            }
+                            Log.e("image",""+file1.getAbsolutePath());
+                            Bitmap pp = BitmapFactory.decodeFile(file.getAbsolutePath());
+                            profilePic.setImageBitmap(pp);
 
-                }catch (JSONException e){
+
+//                            user.setProfilePicture(pp);
+//                            user.saveUserToFile(context);
+//                            Intent intent = new Intent(context, HomeActivity.class);
+//                            startActivity(intent);
+                        }
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers,Throwable e, File file) {
+                            // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                            Log.e("failure-image",""+file.getAbsolutePath());
+                            System.out.println("failure");
+                            System.out.println(statusCode);
+                        }
+                    });
+
+
+                } catch (JSONException e){
                     e.printStackTrace();
                 }
 
@@ -214,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        update();
 
         logoutButton = findViewById(R.id.logout_button);
         logoutButton.setOnClickListener(new View.OnClickListener() {
@@ -226,7 +227,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 sessionManager.clearAll();
-                                File dir = LoginActivity.file;
+                                File dir = new File(Environment.getExternalStorageDirectory()+"/CIOC");
+                                Log.e("MainActivity",""+Environment.getExternalStorageDirectory()+"/CIOC");
                                 if (dir.exists())
                                 if (dir.isDirectory()) {
                                     String[] children = dir.list();
@@ -238,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 stopService(new Intent(MainActivity.this, BackgroundService.class));
                                 stopService(new Intent(MainActivity.this, LocationService.class));
-                                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                                startActivity(new Intent(MainActivity.this, SplashActivity.class));
                                 finish();
                             }
 

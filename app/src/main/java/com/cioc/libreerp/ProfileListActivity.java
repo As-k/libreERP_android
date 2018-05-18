@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,10 +39,12 @@ public class ProfileListActivity extends AppCompatActivity {
     RecyclerView profileDetailsList;
     ProfileDetailsAdapter profileDetailsAdapter;
     int c_day, c_month, c_year;
-    String srtDate;
+    String strDate1, strDate, routePk;
     AsyncHttpClient client;
     Backend backend;
     List<Stop> stops;
+    Button travelAllowance;
+    boolean submit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,19 +70,20 @@ public class ProfileListActivity extends AppCompatActivity {
 //        c_year = c.get(Calendar.YEAR);
 
         SimpleDateFormat mdformat = new SimpleDateFormat("dd MMM yyyy"); //yyyy-MM-dd
-        String strDate1 = mdformat.format(c.getTime());
+        strDate1 = mdformat.format(c.getTime());
         date.setText(strDate1);
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        srtDate = df.format(c.getTime());
+        strDate = df.format(c.getTime());
 
         previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dataNotFound.setVisibility(View.GONE);
                 c.add(Calendar.DAY_OF_YEAR, -1);
-                srtDate = df.format(c.getTime());
-                date.setText(mdformat.format(c.getTime()));
+                strDate = df.format(c.getTime());
+                strDate1 = mdformat.format(c.getTime());
+                date.setText(""+strDate1);
                 getData();
             }
         });
@@ -89,24 +93,20 @@ public class ProfileListActivity extends AppCompatActivity {
             public void onClick(View v) {
                 dataNotFound.setVisibility(View.GONE);
                 c.add(Calendar.DAY_OF_YEAR, 1);
-                srtDate = df.format(c.getTime());
-                date.setText(mdformat.format(c.getTime()));
+                strDate = df.format(c.getTime());
+                strDate1 = mdformat.format(c.getTime());
+                date.setText(strDate1);
                 getData();
             }
         });
 
-//        startService(new Intent(this, BackgroundService.class));
-//        startService(new Intent(this, LocationService.class));
         getData();
 
-
-//        profileDetailsAdapter = new ProfileDetailsAdapter(this, stops);
-//        profileDetailsList.setAdapter(profileDetailsAdapter);
-
+        travelAllowance = findViewById(R.id.travel_allowance);
     }
 
     public void getData(){
-        client.get(Backend.serverUrl+"/api/myWork/route/?format=json&scheduledOn="+ srtDate, new JsonHttpResponseHandler() { //api/myWork/stop/?format=json
+        client.get(Backend.serverUrl+"/api/myWork/route/?format=json&scheduledOn="+ strDate, new JsonHttpResponseHandler() { //api/myWork/stop/?format=json
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 super.onSuccess(statusCode, headers, response);
@@ -118,10 +118,11 @@ public class ProfileListActivity extends AppCompatActivity {
                         jsonObject = response.getJSONObject(0);
                         JSONArray jsonArray = jsonObject.getJSONArray("stops");
                         for (int i=0; i<jsonArray.length(); i++) {
-                            Stop stop = new Stop(jsonArray,i);
+                            Stop stop = new Stop(jsonObject, jsonArray,i);
+                            routePk = stop.getRoutePk();
+                            submit = stop.isSumbit();
                             stops.add(stop);
                         }
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -154,6 +155,22 @@ public class ProfileListActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getData();
+        travelAllowance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileListActivity.this, TravelAllowanceActivity.class)
+                        .putExtra("date", strDate1)
+                        .putExtra("pk",routePk)
+                        .putExtra("submit", submit));
+            }
+        });
+    }
+
 
     @Override
     protected void onDestroy() {

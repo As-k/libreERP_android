@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class FlashActivity extends AppCompatActivity {
+public class SplashActivity extends AppCompatActivity {
 
     private Handler hd = new Handler();
     SessionManager sessionManager;
@@ -34,13 +34,13 @@ public class FlashActivity extends AppCompatActivity {
 //                loc = csrfId.equals("") && sessionId.equals("");
                 if (csrfId.equals("") && sessionId.equals("")) {
 //                        if (res) {
-//                            startActivity(new Intent(FlashActivity.this, MainActivity.class));
+//                            startActivity(new Intent(SplashActivity.this, MainActivity.class));
 //                        } else {
-                        startActivity(new Intent(FlashActivity.this, LoginActivity.class));
+                        startActivity(new Intent(SplashActivity.this, LoginActivity.class));
 //                        sessionManager.setStatus(false);
 //                        }
                 } else {
-                    startActivity(new Intent(FlashActivity.this, MainActivity.class));
+                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
 //                    sessionManager.setStatus(true);
                 }
                 finish();

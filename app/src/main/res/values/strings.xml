@@ -9,6 +9,7 @@
     <string name="action_log_out">Logout</string>
     <string name="action_update_out">Update</string>
     <string name="action_save">Save</string>
+    <string name="action_submit">Submit</string>
     <string name="action_change_pass">Change Password</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>

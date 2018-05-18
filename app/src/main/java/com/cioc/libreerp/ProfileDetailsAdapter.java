@@ -12,6 +12,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -22,7 +23,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
 import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE;
@@ -43,6 +50,8 @@ public class ProfileDetailsAdapter extends RecyclerView.Adapter<ProfileDetailsAd
 
     List<Stop> stops;
     Context context;
+    Backend backend;
+    AsyncHttpClient httpClient;
 
     public ProfileDetailsAdapter(Context context, List<Stop> stops){
         this.context = context;
@@ -52,6 +61,8 @@ public class ProfileDetailsAdapter extends RecyclerView.Adapter<ProfileDetailsAd
     @NonNull
     @Override
     public ProfileDetailsAdapter.MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        backend = new Backend(context);
+        httpClient = backend.getHTTPClient();
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = layoutInflater.inflate(R.layout.profile_details_layout, parent, false);
         MyHolder myHolder = new MyHolder(v);
@@ -92,22 +103,32 @@ public class ProfileDetailsAdapter extends RecyclerView.Adapter<ProfileDetailsAd
             }
         });
 
+        if (stop.getFeedback() != "null"){
+            holder.profileCardView.setCardBackgroundColor(Color.rgb(0, 200, 0));
+            holder.profileName.setTextColor(Color.WHITE);
+            holder.timing.setTextColor(Color.WHITE);
+            holder.timingImg.setImageResource(R.drawable.ic_access_time_white);
+            holder.personLocation.setImageResource(R.drawable.ic_person_pin_circle_white);
+            holder.callPerson.setImageResource(R.drawable.ic_phone_white);
+            holder.popupMenu.setImageResource(R.drawable.ic_popup_menu_white);
+        }
+
         holder.popupMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PopupMenu popupMenu = new PopupMenu(context, v);
-                if (!holder.res) {
+//                if (stop.getFeedback() == "null") {
                     popupMenu.inflate(R.menu.mark_list);
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
-                                case R.id.cancel1:
-                                    Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show();
-                                    break;
                                 case R.id.complete1:
                                     EditText editText = new EditText(context);
-                                    editText.setText(holder.comment);
+                                    if (stop.getFeedback() == "null")
+                                        editText.setText("");
+                                    else
+                                        editText.setText(stop.getFeedback());
                                     editText.setHeight(250);
                                     editText.hasWindowFocus();
                                     editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_POSTAL_ADDRESS | TYPE_TEXT_FLAG_MULTI_LINE);
@@ -119,70 +140,103 @@ public class ProfileDetailsAdapter extends RecyclerView.Adapter<ProfileDetailsAd
                                             .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
-                                                    holder.res = true;
-                                                    holder.comment = editText.getText().toString().trim();
-                                                    holder.profileCardView.setCardBackgroundColor(Color.rgb(0, 0, 100));
-                                                    holder.profileName.setTextColor(Color.WHITE);
-                                                    holder.timing.setTextColor(Color.WHITE);
-                                                    holder.timingImg.setImageResource(R.drawable.ic_access_time_white);
-                                                    holder.personLocation.setImageResource(R.drawable.ic_person_pin_circle_white);
-                                                    holder.callPerson.setImageResource(R.drawable.ic_phone_white);
-                                                    holder.popupMenu.setImageResource(R.drawable.ic_popup_menu_white);
+                                                    RequestParams params = new RequestParams();
+                                                    params.put("feedbackTxt", editText.getText().toString().trim());
+                                                    params.put("completed", true);
+//                                                    params.put("status", "submitted");
 
-                                                    Toast.makeText(context, "complete", Toast.LENGTH_SHORT).show();
+                                                    httpClient.patch(Backend.serverUrl + "/api/myWork/stop/" + stop.getStopPk()+"/", params, new AsyncHttpResponseHandler() {
+                                                        @Override
+                                                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                                                            holder.res = true;
+                                                            holder.comment = editText.getText().toString().trim();
+                                                            stop.setFeedback(holder.comment);
+                                                            holder.profileCardView.setCardBackgroundColor(Color.rgb(0, 200,0 ));
+                                                            holder.profileName.setTextColor(Color.WHITE);
+                                                            holder.timing.setTextColor(Color.WHITE);
+                                                            holder.timingImg.setImageResource(R.drawable.ic_access_time_white);
+                                                            holder.personLocation.setImageResource(R.drawable.ic_person_pin_circle_white);
+                                                            holder.callPerson.setImageResource(R.drawable.ic_phone_white);
+                                                            holder.popupMenu.setImageResource(R.drawable.ic_popup_menu_white);
+
+                                                            Toast.makeText(context, "complete", Toast.LENGTH_SHORT).show();
+                                                            Log.e("ProfileDetailsAdapter", "  onFailure");
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                                                            Log.e("ProfileDetailsAdapter", "  onFailure");
+                                                        }
+                                                    });
+
                                                 }
                                             }).setNegativeButton("Cancel", null)
                                             .create().show();
-
                                     break;
-
                             }
                             return false;
                         }
                     });
 //                    popupMenu.show();
-                } else {
-                    popupMenu.inflate(R.menu.mark_list2);
-                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            switch (item.getItemId()) {
-                                case R.id.complete2:
-                                    EditText editText = new EditText(context);
-                                    editText.setText(holder.comment);
-                                    editText.setHeight(250);
-                                    editText.hasWindowFocus();
-                                    editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_POSTAL_ADDRESS | TYPE_TEXT_FLAG_MULTI_LINE);
-                                    editText.setGravity(Gravity.TOP);
-
-                                    AlertDialog.Builder adb = new AlertDialog.Builder(context);
-                                    adb.setTitle("Write a comment!").setView(editText)
-                                            .setCancelable(false)
-                                            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    holder.res = true;
-                                                    holder.comment = editText.getText().toString().trim();
-                                                    holder.profileCardView.setCardBackgroundColor(Color.rgb(0, 0, 100));
-                                                    holder.profileName.setTextColor(Color.WHITE);
-                                                    holder.timing.setTextColor(Color.WHITE);
-                                                    holder.timingImg.setImageResource(R.drawable.ic_access_time_white);
-                                                    holder.personLocation.setImageResource(R.drawable.ic_person_pin_circle_white);
-                                                    holder.callPerson.setImageResource(R.drawable.ic_phone_white);
-                                                    holder.popupMenu.setImageResource(R.drawable.ic_popup_menu_white);
-                                                    Toast.makeText(context, "complete", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }).setNegativeButton("Cancel", null)
-                                            .create().show();
-
-                                    break;
-
-                            }
-                            return false;
-                        }
-                    });
-
-                }
+//                } else {
+//                    popupMenu.inflate(R.menu.mark_list2);
+//                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                        @Override
+//                        public boolean onMenuItemClick(MenuItem item) {
+//                            switch (item.getItemId()) {
+//                                case R.id.complete2:
+//                                    EditText editText = new EditText(context);
+//                                    editText.setText(stop.getFeedback());
+//                                    editText.setHeight(250);
+//                                    editText.hasWindowFocus();
+//                                    editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_POSTAL_ADDRESS | TYPE_TEXT_FLAG_MULTI_LINE);
+//                                    editText.setGravity(Gravity.TOP);
+//
+//                                    AlertDialog.Builder adb = new AlertDialog.Builder(context);
+//                                    adb.setTitle("Write a comment!").setView(editText)
+//                                            .setCancelable(false)
+//                                            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+//                                                @Override
+//                                                public void onClick(DialogInterface dialog, int which) {
+//                                                    RequestParams params = new RequestParams();
+//                                                    params.put("feedbackTxt", editText.getText().toString().trim());
+////                                                    params.put("status", "submitted");
+//
+//                                                    httpClient.patch(Backend.serverUrl + "/api/myWork/stop/" + stop.getStopPk()+"/", params, new AsyncHttpResponseHandler() {
+//                                                        @Override
+//                                                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+////                                                            holder.res = true;
+//                                                            holder.comment = editText.getText().toString().trim();
+////                                                            stop.setFeedback(holder.comment);
+//                                                            holder.profileCardView.setCardBackgroundColor(Color.rgb(0, 0, 100));
+//                                                            holder.profileName.setTextColor(Color.WHITE);
+//                                                            holder.timing.setTextColor(Color.WHITE);
+//                                                            holder.timingImg.setImageResource(R.drawable.ic_access_time_white);
+//                                                            holder.personLocation.setImageResource(R.drawable.ic_person_pin_circle_white);
+//                                                            holder.callPerson.setImageResource(R.drawable.ic_phone_white);
+//                                                            holder.popupMenu.setImageResource(R.drawable.ic_popup_menu_white);
+//
+//                                                            Toast.makeText(context, "complete", Toast.LENGTH_SHORT).show();
+//                                                            Log.e("ProfileDetailsAdapter", "  onFailure");
+//                                                        }
+//
+//                                                        @Override
+//                                                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+//                                                            Log.e("ProfileDetailsAdapter", "  onFailure");
+//                                                        }
+//                                                    });
+//                                                }
+//                                            }).setNegativeButton("Cancel", null)
+//                                            .create().show();
+//
+//                                    break;
+//
+//                            }
+//                            return false;
+//                        }
+//                    });
+//
+//                }
                 popupMenu.show();
             }
         });

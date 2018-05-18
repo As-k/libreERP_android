@@ -124,13 +124,11 @@ public class LoginActivity extends AppCompatActivity {
 
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                     && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.v(TAG,"Permission is granted");
                 return true;
             } else {
-
                 Log.v(TAG,"Permission is revoked");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
                 return false;
@@ -272,6 +270,7 @@ public class LoginActivity extends AppCompatActivity {
 //                                File directory = Environment.getExternalStoragePublicDirectory("Libre");
 //                                file = new File(directory, fileName);
                                 file = new File(Environment.getExternalStorageDirectory()+"/CIOC");
+                                Log.e("directory",""+file.getAbsolutePath());
                                 if (file.mkdir()) {
                                     sessionManager.setCsrfId(csrf_token);
                                     sessionManager.setSessionId(session_id);
@@ -297,7 +296,6 @@ public class LoginActivity extends AppCompatActivity {
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Dir not created", Toast.LENGTH_SHORT).show();
                                 }
-
                             }
                             Log.e("LoginActivity", "  finished");
                         }

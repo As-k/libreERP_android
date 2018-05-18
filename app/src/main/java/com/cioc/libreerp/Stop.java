@@ -10,7 +10,8 @@ import org.json.JSONObject;
 
 public class Stop {
 
-    String pk, routePk, name, email, scheduleOn, timing, mobile, street, city, state, pincode, lat, lan, country, address, feedback;
+    String stopPk, routePk, name, email, scheduleOn, timing, mobile, street, city, state, pincode, lat, lan, country, address, feedback;
+    boolean sumbit, completed;
     JSONObject jsonObject;
     JSONArray jsonArray;
     int num;
@@ -18,8 +19,9 @@ public class Stop {
     public Stop() {
     }
 
-    public Stop(String pk, String routePk, String name, String email, String scheduleOn, String timing, String mobile, String street, String city, String state, String pincode, String lat, String lan, String country, String address, String feedback) {
-        this.pk = pk;
+    public Stop(String stopPk, String routePk, String name, String email, String scheduleOn, String timing, String mobile, String street, String city, String state, String pincode, String lat, String lan,
+                String country, String address, String feedback, boolean submit, boolean completed) {
+        this.stopPk = stopPk;
         this.routePk = routePk;
         this.name = name;
         this.email = email;
@@ -35,9 +37,12 @@ public class Stop {
         this.country = country;
         this.address = address;
         this.feedback = feedback;
+        this.sumbit = submit;
+        this.completed = completed;
     }
 
-    public Stop(JSONArray jsonArray, int num) {
+    public Stop(JSONObject jsonObject, JSONArray jsonArray, int num) {
+        this.jsonObject = jsonObject;
         this.jsonArray = jsonArray;
         this.num = num;
 
@@ -45,11 +50,16 @@ public class Stop {
 //            JSONArray jsonArray = jsonObject.getJSONArray("stops");
 //            for (int i=0; i<jsonObject.length(); i++) {
 
+            this.routePk = jsonObject.getString("pk");
+            this.sumbit = jsonObject.getBoolean("submit");
             JSONObject json = jsonArray.getJSONObject(num);
 
             this.timing = json.getString("plannedSlot");
+            this.stopPk = json.getString("pk");
+            this.feedback = json.getString("feedbackTxt");
+            this.completed = json.getBoolean("completed");
             JSONObject objIndividual = json.getJSONObject("individual");
-            this.pk = objIndividual.getString("pk");
+//            this.pk = objIndividual.getString("pk");
             this.name = objIndividual.getString("name");
             this.email = objIndividual.getString("email");
             this.mobile = objIndividual.getString("mobile");
@@ -72,12 +82,16 @@ public class Stop {
 
     }
 
-    public String getPk() {
-        return pk;
+//    public Stop(JSONObject jsonObject){
+//        this.jsonObject = jsonObject;
+//    }
+
+    public String getStopPk() {
+        return stopPk;
     }
 
-    public void setPk(String pk) {
-        this.pk = pk;
+    public void setStopPk(String pk) {
+        this.stopPk = pk;
     }
 
     public String getRoutePk() {
@@ -198,5 +212,21 @@ public class Stop {
 
     public void setFeedback(String feedback) {
         this.feedback = feedback;
+    }
+
+    public boolean isSumbit() {
+        return sumbit;
+    }
+
+    public void setSumbit(boolean sumbit) {
+        this.sumbit = sumbit;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }

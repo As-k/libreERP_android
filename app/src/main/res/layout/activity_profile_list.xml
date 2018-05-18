@@ -13,52 +13,84 @@
         >
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:padding="20dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
             >
-
-            <ImageView
-                android:layout_width="wrap_content"
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/backward"
-                android:src="@drawable/previous"
-                />
+                app:cardBackgroundColor="@color/white"
+                android:padding="20dp"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="2dp"
+                android:gravity="center">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:padding="15dp"
+                >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:id="@+id/backward"
+                    android:src="@drawable/previous"
+                    />
+
+                <TextView
+                    android:id="@+id/current_date"
+                    style="@style/textview_style"
+                    android:layout_gravity="center"
+                    android:text="10 May 2018"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorAccent"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:id="@+id/forward"
+                    android:src="@drawable/forward"/>
+
+            </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+               style="@style/textview_style"
+                android:id="@+id/profilesDetails">
+
+            </android.support.v7.widget.RecyclerView>
 
             <TextView
-                android:id="@+id/current_date"
-                style="@style/textview_style"
-                android:layout_gravity="center"
-                android:text="10 May 2018"
-                android:textStyle="bold"
-                android:textColor="@color/colorAccent"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                />
-
-            <ImageView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/forward"
-                android:src="@drawable/forward"/>
+                android:id="@+id/dataNotFound"
+                android:textAlignment="center"
+                android:text="route not found"
+                android:textSize="@dimen/activity_vertical_margin"/>
 
         </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-           style="@style/textview_style"
-            android:id="@+id/profilesDetails">
-
-        </android.support.v7.widget.RecyclerView>
-
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/dataNotFound"
-            android:textAlignment="center"
-            android:text="route not found"
-            android:textSize="@dimen/activity_vertical_margin"/>
+            android:layout_weight="0">
+            <Button
+                android:text="TA allowance"
+                android:layout_width="match_parent"
+                style="@style/button_style"
+                android:id="@+id/travel_allowance"
+                android:layout_alignParentRight="true"/>
+        </RelativeLayout>
+
 
     </LinearLayout>
 

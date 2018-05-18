@@ -9,10 +9,10 @@
         app:showAsAction="never"
         />
 
-    <item android:id="@+id/cancel1"
-        android:title="Cancel"
-        android:actionLayout="@layout/profile_details_layout"
-        app:showAsAction="never"
-        />
+    <!--<item android:id="@+id/cancel1"-->
+        <!--android:title="Cancel"-->
+        <!--android:actionLayout="@layout/profile_details_layout"-->
+        <!--app:showAsAction="never"-->
+        <!--/>-->
 
 </menu>
