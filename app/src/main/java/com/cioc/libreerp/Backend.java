@@ -19,7 +19,9 @@ import cz.msebera.android.httpclient.impl.cookie.BasicClientCookie;
 
 class Backend {
 //    static String serverUrl = "http://192.168.1.113:8000/";
-    static String serverUrl = "http://192.168.1.108:8000/";
+//    static String serverUrl = "http://192.168.1.114:8000/";
+    static String serverUrl = "http://192.168.1.101:8000/";
+//    static String serverUrl = "http://192.168.137.26:8000/";
 //    static String serverUrl = "https://vamso.cioc.in/";
     public Context context;
 
@@ -29,7 +31,7 @@ class Backend {
         this.context = context;
     }
 
-    public AsyncHttpClient getHTTPClient(){
+    public AsyncHttpClient getHTTPClient() {
         sessionManager = new SessionManager(this.context);
         final String csrftoken = sessionManager.getCsrfId();
         final String sessionid = sessionManager.getSessionId();
@@ -37,6 +39,6 @@ class Backend {
         client.addHeader("X-CSRFToken" , csrftoken);
         client.addHeader("COOKIE" , String.format("csrftoken=%s; sessionid=%s" ,csrftoken,  sessionid));
         return client;
-    };
+    }
 
 }

@@ -31,14 +31,14 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
         sessionManager = new SessionManager(context);
         res = sessionManager.getStatus();
-        if (res) {
-//            Toast.makeText(context, "loc broadcast service", Toast.LENGTH_SHORT).show();
-            context.startService(new Intent(context, LocationService.class));
-        } else {
-            context.stopService(new Intent(context, LocationService.class));
-        }
+//        if (res) {
+////            Toast.makeText(context, "loc broadcast service", Toast.LENGTH_SHORT).show();
+//            context.startService(new Intent(context, LocationService.class));
+//        } else {
+//            context.stopService(new Intent(context, LocationService.class));
+//        }
 
-        if (sessionManager.getSessionId() != "" && sessionManager.getSessionId() != "") {
+        if (sessionManager.getCsrfId() != "" && sessionManager.getSessionId() != "") {
 //            Toast.makeText(context, "loc B Destroy", Toast.LENGTH_SHORT).show();
             Session session = new Session();
             // Add all onJoin listeners
@@ -48,7 +48,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             Client client = new Client(session, "ws://192.168.1.113:8080/ws", "default");
             CompletableFuture<ExitInfo> exitInfoCompletableFuture = client.connect();
 
-//            context.startService(new Intent(context, BackgroundService.class));
+            context.startService(new Intent(context, BackgroundService.class));
         }
 
 

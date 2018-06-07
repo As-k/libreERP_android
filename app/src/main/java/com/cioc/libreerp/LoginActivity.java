@@ -51,26 +51,18 @@ public class LoginActivity extends AppCompatActivity {
     Button loginButton;//, getOTP;
     LinearLayout llUsername, llPassword;//, llotpEdit;
 //    TextView forgot, goBack;
-
     Backend backend = new Backend(this);
-
-    Intent mServiceIntent;
     Context context;
-
     private CookieStore httpCookieStore;
     private AsyncHttpClient client;
-
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor spEditor;
     SessionManager sessionManager;
     public static boolean res, loc;
     String csrfId, sessionId;
 
     public static File file;
-
     public static String fileName = "cioc.libre.keys";
-
     String TAG = "status";
+    boolean isGettingIntent = true;
 
 
     @Override
@@ -80,6 +72,11 @@ public class LoginActivity extends AppCompatActivity {
 
         context = LoginActivity.this.getApplicationContext();
         getSupportActionBar().hide();
+
+        Bundle b = getIntent().getExtras();
+        if (b!=null){
+            isGettingIntent = b.getBoolean("boolean");
+        }
 
         sessionManager = new SessionManager(this);
 
@@ -247,7 +244,6 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, "un success", Toast.LENGTH_SHORT).show();
                                 Log.e("LoginActivity", "  onFailure");
                             }
-
                         }
 
                         @Override
@@ -280,7 +276,7 @@ public class LoginActivity extends AppCompatActivity {
                                     sessionManager.setCsrfId(csrf_token);
                                     sessionManager.setSessionId(session_id);
                                     Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
-                                    String fileContents = "csrf_token " + sessionManager.getCsrfId() + "\n session_id " + sessionManager.getSessionId();
+                                    String fileContents = "csrf_token " + sessionManager.getCsrfId() + " session_id " + sessionManager.getSessionId();
                                     FileOutputStream outputStream;
                                     try {
                                         String path = file.getAbsolutePath() + "/libre.txt";
@@ -295,7 +291,11 @@ public class LoginActivity extends AppCompatActivity {
 //                                    mServiceIntent = new Intent(context, BackgroundService.class);
 //                                    startService(mServiceIntent);
 //                                    startService(new Intent(LoginActivity.this, LocationService.class));
-                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                    if (!isGettingIntent) {
+                                        Intent intent = new Intent();
+                                        setResult(RESULT_OK, intent);
+                                    } else
+                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                     finish();
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Dir not created", Toast.LENGTH_SHORT).show();
@@ -329,7 +329,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         return file;
     }
-
 
     @Override
     protected void onDestroy() {

@@ -9,8 +9,7 @@
     <ScrollView
         android:id="@+id/registration_form"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         >
         <LinearLayout
             android:id="@+id/email_login_form"
@@ -58,16 +57,16 @@
                 android:layout_marginTop="5dp"
                 />
 
-            <Switch
-                android:id="@+id/sw"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_marginTop="5dp"
-                android:text="On duty"
-                android:textColor="@color/colorAccent"
-                android:textSize="20sp" />
+            <!--<Switch-->
+                <!--android:id="@+id/sw"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentLeft="true"-->
+                <!--android:layout_alignParentStart="true"-->
+                <!--android:layout_marginTop="5dp"-->
+                <!--android:text="On duty"-->
+                <!--android:textColor="@color/colorAccent"-->
+                <!--android:textSize="20sp" />-->
 
             <Button
                 android:id="@+id/logout_button"
@@ -99,38 +98,39 @@
                 <!--android:layout_marginEnd="20dp"-->
                 <!--android:layout_marginStart="20dp"/>-->
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/changePassword"
-                android:text="Change Password"
-                android:textAlignment="center"
-                android:layout_marginBottom="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="40dp"
-                android:onClick="changePassword"/>
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:id="@+id/changePassword"-->
+                <!--android:text="Change Password"-->
+                <!--android:textAlignment="center"-->
+                <!--android:layout_marginBottom="20dp"-->
+                <!--android:layout_marginLeft="20dp"-->
+                <!--android:layout_marginRight="20dp"-->
+                <!--android:layout_marginTop="40dp"-->
+                <!--android:onClick="changePassword"/>-->
 
             <TextView
                 android:textAlignment="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
                 android:id="@+id/version"
                 android:text="Version 0.1"
-                android:layout_marginTop="5dp"
-                />
+                android:layout_marginTop="60dp"
+                android:onClick="home"/>
 
         </LinearLayout>
     </ScrollView>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0">
-        <Button
-            android:text="Show routes"
-            android:layout_width="match_parent"
-            style="@style/button_style"
-            android:id="@+id/route_lists"
-            android:layout_alignParentRight="true"/>
-    </RelativeLayout>
+    <!--<RelativeLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="0">-->
+        <!--<Button-->
+            <!--android:text="Show routes"-->
+            <!--android:layout_width="match_parent"-->
+            <!--style="@style/button_style"-->
+            <!--android:id="@+id/route_lists"-->
+            <!--android:layout_alignParentRight="true"/>-->
+    <!--</RelativeLayout>-->
 </LinearLayout>

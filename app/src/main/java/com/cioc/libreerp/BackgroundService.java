@@ -95,13 +95,13 @@ public class BackgroundService extends Service {
         super.onStartCommand(intent, flags, startId);
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
-        boolean res = sessionManager.getStatus();
-        if (res) {
+//        boolean res = sessionManager.getStatus();
+//        if (res) {
             intent = new Intent("com.cioc.libreerp.backendservice");
             intent.putExtra("yourvalue", "torestore");
             sendBroadcast(intent);
             return START_STICKY;
-        }
-        else return START_STICKY_COMPATIBILITY;
+//        }
+//        else return START_STICKY_COMPATIBILITY;
     }
 }
