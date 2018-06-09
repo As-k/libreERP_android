@@ -20,7 +20,7 @@ import cz.msebera.android.httpclient.impl.cookie.BasicClientCookie;
 class Backend {
 //    static String serverUrl = "http://192.168.1.113:8000/";
 //    static String serverUrl = "http://192.168.1.114:8000/";
-    static String serverUrl = "http://192.168.1.101:8000/";
+    static String serverUrl = "http://192.168.1.103:8000/";
 //    static String serverUrl = "http://192.168.137.26:8000/";
 //    static String serverUrl = "https://vamso.cioc.in/";
     public Context context;
