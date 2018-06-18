@@ -304,31 +304,28 @@ public class LoginActivity extends AppCompatActivity {
                             Log.e("LoginActivity", "  finished");
                         }
                     });
-//                } else {
-//                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//                    finish();
                 }
             }
         }
     }
-
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
-    public File getPublicAlbumStorageDir(String albumName) {
-        // Get the directory for the user's public pictures directory.
-        File file = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), albumName);
-        if (!file.mkdirs()) {
-            Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
-        }
-        return file;
-    }
+//
+//    public boolean isExternalStorageWritable() {
+//        String state = Environment.getExternalStorageState();
+//        if (Environment.MEDIA_MOUNTED.equals(state)) {
+//            return true;
+//        }
+//        return false;
+//    }
+//
+//    public File getPublicAlbumStorageDir(String albumName) {
+//        // Get the directory for the user's public pictures directory.
+//        File file = new File(Environment.getExternalStoragePublicDirectory(
+//                Environment.DIRECTORY_PICTURES), albumName);
+//        if (!file.mkdirs()) {
+//            Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
+//        }
+//        return file;
+//    }
 
     @Override
     protected void onDestroy() {
