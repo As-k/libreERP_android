@@ -6,17 +6,19 @@
     <item
         android:id="@+id/multiple_search"
         android:icon="@drawable/ic_search"
+        android:orderInCategory="100"
         android:title="Search"
         android:visible="true"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:iconifiedByDefault="true"
         app:queryHint="Search.."
-        app:showAsAction="always" />
+        app:showAsAction="always|collapseActionView" />
 
     <item
         android:id="@+id/send_all"
         android:icon="@drawable/ic_done"
+        android:orderInCategory="100"
         android:title="Ok"
         app:showAsAction="always"
-        android:actionLayout="@layout/image_resource"/>
+        />
 </menu>
