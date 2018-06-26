@@ -60,7 +60,6 @@ public class LoginActivity extends AppCompatActivity {
     String csrfId, sessionId;
 
     public static File file;
-    public static String fileName = "cioc.libre.keys";
     String TAG = "status";
     boolean isGettingIntent = true;
 
@@ -123,7 +122,6 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -166,7 +164,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
 //    public void forgotPassword(View v){
 //        llPassword.setVisibility(View.GONE);
 //        loginButton.setVisibility(View.GONE);
@@ -204,7 +201,6 @@ public class LoginActivity extends AppCompatActivity {
 //
 //    }
 
-
     public void login(){
         Toast.makeText(this, backend.serverUrl, Toast.LENGTH_LONG).show();
         String userName = username.getText().toString().trim();
@@ -217,24 +213,17 @@ public class LoginActivity extends AppCompatActivity {
                 password.setError("Empty");
                 password.requestFocus();
             } else {
-
-                res = sessionManager.getStatus();
                 csrfId = sessionManager.getCsrfId();
                 sessionId = sessionManager.getSessionId();
-
-                loc = csrfId.equals("") && sessionId.equals("");
-
                 if (csrfId.equals("") && sessionId.equals("")) {
                     RequestParams params = new RequestParams();
                     params.put("username", userName);
                     params.put("password", pass);
-
                     client.post(backend.serverUrl + "/login/?mode=api", params, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject c) {
                             Log.e("LoginActivity", "  onSuccess");
                             super.onSuccess(statusCode, headers, c);
-
                         }
 
                         @Override
@@ -266,15 +255,12 @@ public class LoginActivity extends AppCompatActivity {
                                 String csrf_token = csrfCookie.getValue();
                                 String session_id = sessionCookie.getValue();
 
-
-//                                getPublicAlbumStorageDir("Libre");
-//                                File directory = Environment.getExternalStoragePublicDirectory("Libre");
-//                                file = new File(directory, fileName);
                                 file = new File(Environment.getExternalStorageDirectory()+"/CIOC");
                                 Log.e("directory",""+file.getAbsolutePath());
                                 if (file.mkdir()) {
                                     sessionManager.setCsrfId(csrf_token);
                                     sessionManager.setSessionId(session_id);
+                                    sessionManager.setUsername(userName);
                                     Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
                                     String fileContents = "csrf_token " + sessionManager.getCsrfId() + " session_id " + sessionManager.getSessionId();
                                     FileOutputStream outputStream;
@@ -288,9 +274,6 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                     Log.e("isExternalStorageWritable", "" + context.getFilesDir().getAbsoluteFile().getPath());
 
-//                                    mServiceIntent = new Intent(context, BackgroundService.class);
-//                                    startService(mServiceIntent);
-//                                    startService(new Intent(LoginActivity.this, LocationService.class));
                                     if (!isGettingIntent) {
                                         Intent intent = new Intent();
                                         setResult(RESULT_OK, intent);
@@ -304,30 +287,9 @@ public class LoginActivity extends AppCompatActivity {
                             Log.e("LoginActivity", "  finished");
                         }
                     });
-//                } else {
-//                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//                    finish();
                 }
             }
         }
-    }
-
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
-    public File getPublicAlbumStorageDir(String albumName) {
-        // Get the directory for the user's public pictures directory.
-        File file = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), albumName);
-        if (!file.mkdirs()) {
-            Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
-        }
-        return file;
     }
 
     @Override

@@ -3,10 +3,6 @@ package com.cioc.libreerp;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/**
- * Created by admin on 30/04/18.
- */
-
 public class SessionManager {
     Context context;
 
@@ -14,8 +10,7 @@ public class SessionManager {
     SharedPreferences.Editor spe;
     private String csrfId = "csrftoken";
     private String sessionId = "sessionid";
-    private String STATUS = "status";
-    private String pk = "last_updated_pk";
+    private String userName = "username";
 
     public SessionManager(Context context) {
         this.context = context;
@@ -41,21 +36,12 @@ public class SessionManager {
         spe.apply();
     }
 
-    public boolean getStatus() {
-        return sp.getBoolean(STATUS, false);
+    public String getUsername() {
+        return sp.getString(userName, "");
     }
 
-    public void setStatus(boolean status) {
-        spe.putBoolean(STATUS, status);
-        spe.commit();
-    }
-
-    public int getLastUpdatedPk() {
-        return sp.getInt(pk,0);
-    }
-
-    public void setLastUpdatedPk(int last_pk) {
-        spe.putInt(pk, last_pk);
+    public void setUsername(String username) {
+        spe.putString(userName, username);
         spe.apply();
     }
 
