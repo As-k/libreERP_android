@@ -125,12 +125,13 @@ public class LoginActivity extends AppCompatActivity {
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                    && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.PROCESS_OUTGOING_CALLS) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
                 Log.v(TAG,"Permission is granted");
                 return true;
             } else {
                 Log.v(TAG,"Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.CALL_PHONE , Manifest.permission.READ_PHONE_STATE , Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.SEND_SMS}, 1);
                 return false;
             }
         }
@@ -144,19 +145,11 @@ public class LoginActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode) {
-            case 1: {
+        for (int i = 1; i < 6; i++) {
+            if (requestCode == i){
                 if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.v(TAG, "Permission: " + permissions[0] + "was " + grantResults[0]);
-                    //resume tasks needing this permission
-                }
-                return;
-            }
-            case 2: {
-                if (grantResults.length > 0
-                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    Log.v(TAG, "Permission: " + permissions[1] + "was " + grantResults[1]);
+                        && grantResults[i-1] == PackageManager.PERMISSION_GRANTED) {
+                    Log.v(TAG, "Permission: " + permissions[i-1] + "was " + grantResults[i-1]);
                     //resume tasks needing this permission
                 }
                 return;
@@ -295,7 +288,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Intent intent = new Intent("com.cioc.libreerp.backendservice");
-        intent.putExtra("yourvalue", "torestore");
         sendBroadcast(intent);
         Log.i("MAINACT", "onDestroy!");
         super.onDestroy();

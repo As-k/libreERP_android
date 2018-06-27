@@ -201,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
 //            Log.w("onDestroy", " Destroyed Notification Service");
         super.onDestroy();
         Intent intent = new Intent("com.cioc.libreerp.backendservice");
-        intent.putExtra("yourvalue", "torestore");
         sendBroadcast(intent);
     }
 }
