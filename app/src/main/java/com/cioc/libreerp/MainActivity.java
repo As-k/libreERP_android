@@ -140,12 +140,9 @@ public class MainActivity extends AppCompatActivity {
                             System.out.println(statusCode);
                         }
                     });
-
-
                 } catch (JSONException e){
                     e.printStackTrace();
                 }
-
                 super.onSuccess(statusCode, headers, response);
             }
 
@@ -188,24 +185,12 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                                 finish();
                             }
-
                         })
                         .setNegativeButton("No", null)
                         .show();
             }
         });
-
     }
-
-
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
 
     public void home(View v){
         startActivity(new Intent(this, HomeActivity.class));
@@ -216,8 +201,6 @@ public class MainActivity extends AppCompatActivity {
 //            Log.w("onDestroy", " Destroyed Notification Service");
         super.onDestroy();
         Intent intent = new Intent("com.cioc.libreerp.backendservice");
-        intent.putExtra("yourvalue", "torestore");
         sendBroadcast(intent);
     }
-
 }

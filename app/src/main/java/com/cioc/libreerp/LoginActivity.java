@@ -56,11 +56,9 @@ public class LoginActivity extends AppCompatActivity {
     private CookieStore httpCookieStore;
     private AsyncHttpClient client;
     SessionManager sessionManager;
-    public static boolean res, loc;
     String csrfId, sessionId;
 
     public static File file;
-    public static String fileName = "cioc.libre.keys";
     String TAG = "status";
     boolean isGettingIntent = true;
 
@@ -123,16 +121,16 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                    && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.PROCESS_OUTGOING_CALLS) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
                 Log.v(TAG,"Permission is granted");
                 return true;
             } else {
                 Log.v(TAG,"Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.CALL_PHONE , Manifest.permission.READ_PHONE_STATE , Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.SEND_SMS}, 1);
                 return false;
             }
         }
@@ -146,26 +144,17 @@ public class LoginActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode) {
-            case 1: {
+        for (int i = 1; i < 6; i++) {
+            if (requestCode == i){
                 if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.v(TAG, "Permission: " + permissions[0] + "was " + grantResults[0]);
-                    //resume tasks needing this permission
-                }
-                return;
-            }
-            case 2: {
-                if (grantResults.length > 0
-                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    Log.v(TAG, "Permission: " + permissions[1] + "was " + grantResults[1]);
+                        && grantResults[i-1] == PackageManager.PERMISSION_GRANTED) {
+                    Log.v(TAG, "Permission: " + permissions[i-1] + "was " + grantResults[i-1]);
                     //resume tasks needing this permission
                 }
                 return;
             }
         }
     }
-
 
 //    public void forgotPassword(View v){
 //        llPassword.setVisibility(View.GONE);
@@ -204,7 +193,6 @@ public class LoginActivity extends AppCompatActivity {
 //
 //    }
 
-
     public void login(){
         Toast.makeText(this, backend.serverUrl, Toast.LENGTH_LONG).show();
         String userName = username.getText().toString().trim();
@@ -217,24 +205,17 @@ public class LoginActivity extends AppCompatActivity {
                 password.setError("Empty");
                 password.requestFocus();
             } else {
-
-                res = sessionManager.getStatus();
                 csrfId = sessionManager.getCsrfId();
                 sessionId = sessionManager.getSessionId();
-
-                loc = csrfId.equals("") && sessionId.equals("");
-
                 if (csrfId.equals("") && sessionId.equals("")) {
                     RequestParams params = new RequestParams();
                     params.put("username", userName);
                     params.put("password", pass);
-
                     client.post(backend.serverUrl + "/login/?mode=api", params, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject c) {
                             Log.e("LoginActivity", "  onSuccess");
                             super.onSuccess(statusCode, headers, c);
-
                         }
 
                         @Override
@@ -266,15 +247,12 @@ public class LoginActivity extends AppCompatActivity {
                                 String csrf_token = csrfCookie.getValue();
                                 String session_id = sessionCookie.getValue();
 
-
-//                                getPublicAlbumStorageDir("Libre");
-//                                File directory = Environment.getExternalStoragePublicDirectory("Libre");
-//                                file = new File(directory, fileName);
                                 file = new File(Environment.getExternalStorageDirectory()+"/CIOC");
                                 Log.e("directory",""+file.getAbsolutePath());
                                 if (file.mkdir()) {
                                     sessionManager.setCsrfId(csrf_token);
                                     sessionManager.setSessionId(session_id);
+                                    sessionManager.setUsername(userName);
                                     Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
                                     String fileContents = "csrf_token " + sessionManager.getCsrfId() + " session_id " + sessionManager.getSessionId();
                                     FileOutputStream outputStream;
@@ -288,9 +266,6 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                     Log.e("isExternalStorageWritable", "" + context.getFilesDir().getAbsoluteFile().getPath());
 
-//                                    mServiceIntent = new Intent(context, BackgroundService.class);
-//                                    startService(mServiceIntent);
-//                                    startService(new Intent(LoginActivity.this, LocationService.class));
                                     if (!isGettingIntent) {
                                         Intent intent = new Intent();
                                         setResult(RESULT_OK, intent);
@@ -308,29 +283,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
-//
-//    public boolean isExternalStorageWritable() {
-//        String state = Environment.getExternalStorageState();
-//        if (Environment.MEDIA_MOUNTED.equals(state)) {
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    public File getPublicAlbumStorageDir(String albumName) {
-//        // Get the directory for the user's public pictures directory.
-//        File file = new File(Environment.getExternalStoragePublicDirectory(
-//                Environment.DIRECTORY_PICTURES), albumName);
-//        if (!file.mkdirs()) {
-//            Toast.makeText(LoginActivity.this, "Dir created", Toast.LENGTH_SHORT).show();
-//        }
-//        return file;
-//    }
 
     @Override
     protected void onDestroy() {
         Intent intent = new Intent("com.cioc.libreerp.backendservice");
-        intent.putExtra("yourvalue", "torestore");
         sendBroadcast(intent);
         Log.i("MAINACT", "onDestroy!");
         super.onDestroy();
