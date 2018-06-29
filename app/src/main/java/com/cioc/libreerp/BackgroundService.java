@@ -170,7 +170,7 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
     }
 
 
